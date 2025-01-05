@@ -17,33 +17,41 @@
  * under the License.
  */
 
-package org.apache.myfaces.tobago.example.demo;
+ package org.apache.myfaces.tobago.example.demo;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-/**
- * Simple Servlet to kill the user session.
- */
-@WebServlet(urlPatterns = "/KillSession")
-public class KillSession extends HttpServlet {
-
-  @Override
-  protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
-      throws ServletException, IOException {
-    final HttpSession session = request.getSession(false);
-    if (session != null) {
-      session.invalidate();
-      response.getOutputStream().write("The user session was killed!".getBytes(StandardCharsets.UTF_8));
-    } else {
-      response.getOutputStream().write("There is no user session to kill!".getBytes(StandardCharsets.UTF_8));
-    }
-  }
-}
+ import jakarta.servlet.ServletException;
+ import jakarta.servlet.annotation.WebServlet;
+ import jakarta.servlet.http.HttpServlet;
+ import jakarta.servlet.http.HttpServletRequest;
+ import jakarta.servlet.http.HttpServletResponse;
+ import jakarta.servlet.http.HttpSession;
+ 
+ import java.io.IOException;
+ import java.nio.charset.StandardCharsets;
+ 
+ /**
+  * Simple Servlet to kill the user session.
+  */
+ @WebServlet(urlPatterns = "/KillSession")
+ public class KillSession extends HttpServlet {
+ 
+   @Override
+   protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
+       throws ServletException, IOException {
+     final HttpSession session = request.getSession(false);
+     if (session != null) {
+       session.invalidate();
+       try {
+         response.getOutputStream().write("The user session was killed!".getBytes(StandardCharsets.UTF_8));
+       } catch (IOException e) {
+         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error writing response: " + e.getMessage());
+       }
+     } else {
+       try {
+         response.getOutputStream().write("There is no user session to kill!".getBytes(StandardCharsets.UTF_8));
+       } catch (IOException e) {
+         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error writing response: " + e.getMessage());
+       }
+     }
+   }
+ }
